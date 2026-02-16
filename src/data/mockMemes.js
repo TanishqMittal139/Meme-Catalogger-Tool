@@ -1,7 +1,7 @@
 export const mockMemes = [
   {
     id: 1,
-    title: "Distracted Boyfriend",
+    title: "Distracted",
     image: "https://i.imgflip.com/1ur9b0.jpg",
     downloads: 15420,
     uploadedBy: "user123",
