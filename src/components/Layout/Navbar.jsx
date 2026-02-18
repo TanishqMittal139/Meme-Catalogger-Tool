@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 function Navbar() {
   const location = useLocation();
@@ -8,7 +9,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        Meme Catalogger
+        <img src={logo} alt="Meme Catalogger Logo" className="navbar-logo" />
       </Link>
       
       <ul className="navbar-links">
@@ -20,11 +21,6 @@ function Navbar() {
         <li>
           <Link to="/upload" className={isActive('/upload') ? 'active' : ''}>
             Upload
-          </Link>
-        </li>
-        <li>
-          <Link to="/signin" className={isActive('/signin') ? 'active' : ''}>
-            Sign In
           </Link>
         </li>
       </ul>

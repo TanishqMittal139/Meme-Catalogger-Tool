@@ -26,19 +26,33 @@ function CatalogPage() {
   return (
     <div>
       <div className="page-container">
-        <h1 className="page-title">Meme Catalog</h1>
+        <h1 className="page-title">Meme Catalogger</h1>
         <SearchBar onSearch={handleSearch} />
       </div>
       
       <section>
-        <h2 className="section-header">Most Popular</h2>
-        <MemeGrid memes={filteredMemes.length === mockMemes.length ? popularMemes.slice(0, 4) : filteredMemes} />
+        <div className="catalog-section">
+          <h2 className="section-header">Most Popular</h2>
+          <div className="grid-container">
+          <MemeGrid
+            memes={
+              filteredMemes.length === mockMemes.length
+                ? popularMemes.slice(0, 4)
+                : filteredMemes
+            }
+          />
+          </div>
+        </div>
       </section>
-      
+
       {filteredMemes.length === mockMemes.length && (
         <section>
-          <h2 className="section-header">All Memes</h2>
-          <MemeGrid memes={mockMemes} />
+          <div className="catalog-section">
+            <h2 className="section-header">All Memes</h2>
+            <div className="grid-container">
+            <MemeGrid memes={mockMemes} />
+            </div>
+          </div>
         </section>
       )}
     </div>

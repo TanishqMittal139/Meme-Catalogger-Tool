@@ -1,3 +1,25 @@
+/* delete button */ 
+.btn-danger {
+  background: #c62828;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+}
+
+/* Most popular and all memes */
+.catalog-section {
+  max-width: 1200px;      
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+/* logo */
+.navbar-logo {
+  height: 100px;      
+  width: auto;
+  display: block;
+}
 /* ===== CSS VARIABLES (Design System) ===== */
 :root {
   /* Colors */
@@ -53,7 +75,6 @@ body {
   background-color: var(--color-bg-dark);
   padding: var(--spacing-md) var(--spacing-xl);
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
@@ -83,7 +104,7 @@ body {
 
 .navbar-links a.active {
   font-weight: bold;
-  text-decoration: underline;
+  background-color: var(--color-bg);
 }
 
 /* ===== BUTTONS ===== */
@@ -198,26 +219,43 @@ body {
 }
 
 /* ===== MEME GRID ===== */
+.grid-container {
+  background-color: black;
+  border-radius: 20px;
+  padding: var(--spacing-lg);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
 .meme-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr); /* 4 columns */
   gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
+  max-width: 1200px;   
+  margin: 0 auto;      
+  padding: 0;
 }
 
 .meme-card {
-  background-color: var(--color-card);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  position: relative;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s;
 }
 
 .meme-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
-
+.meme-image-box {
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.meme-image-box img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
 .meme-card img {
   width: 100%;
   height: 180px;
@@ -228,11 +266,20 @@ body {
   padding: var(--spacing-md);
   color: var(--color-text-dark);
 }
-
+.meme-title-box {
+  position: relative;
+  z-index: 1;
+  margin-top: -40px; /* overlap */
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding-top: 30px; /*  pushes text down */
+}
 .meme-card-title {
   font-weight: 600;
   font-size: var(--font-size-base);
-  margin-bottom: var(--spacing-xs);
+  margin: 0;
+  color: var(--color-text-dark);
 }
 
 .meme-card-stats {
