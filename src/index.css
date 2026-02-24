@@ -23,8 +23,8 @@
 /* ===== CSS VARIABLES (Design System) ===== */
 :root {
   /* Colors */
-  --color-bg: #3d3d3d;
-  --color-bg-dark: #2d2d2d;
+  --color-bg: #444444; 
+  --color-bg-dark: #ffde59;
   --color-card: #e0e0e0;
   --color-card-dark: #c0c0c0;
   --color-text-light: #ffffff;
@@ -89,10 +89,11 @@ body {
   display: flex;
   gap: var(--spacing-lg);
   list-style: none;
+  color: var(--color-bg-dark);
 }
 
 .navbar-links a {
-  color: var(--color-text-light);
+  color: var(--color-text-dark);
   text-decoration: none;
   font-size: var(--font-size-base);
   transition: opacity 0.2s;
@@ -105,6 +106,9 @@ body {
 .navbar-links a.active {
   font-weight: bold;
   background-color: var(--color-bg);
+  color: var(--color-text-light);
+  border-radius: 4px;
+  padding: 2px;
 }
 
 /* ===== BUTTONS ===== */
@@ -220,10 +224,10 @@ body {
 
 /* ===== MEME GRID ===== */
 .grid-container {
-  background-color: black;
+  background-color: #2d2d2d;
   border-radius: 20px;
   padding: var(--spacing-lg);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 30px black;
 }
 .meme-grid {
   display: grid;
