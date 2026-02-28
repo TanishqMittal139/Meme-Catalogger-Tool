@@ -94,6 +94,17 @@ a {
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.02em;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 800;
+  font-size: 64px;
+  text-transform: uppercase;
+  letter-spacing: -0.06em;
+  transform: skewX(-12deg) scaleX(1.05);
+  color:#ffde59;
+  -webkit-text-stroke:10px #000;
+  paint-order: stroke fill;
+  text-shadow:
+    3px 3px 0 #000;
 }
 
 .page-subtitle {

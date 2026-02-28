@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import JSZip from 'jszip';
 import UploadZone from '../components/Upload/UploadZone';
 import { addMemes } from '../data/memeStorage';
 
