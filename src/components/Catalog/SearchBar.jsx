@@ -9,21 +9,17 @@ function SearchBar({ onSearch }) {
   };
 
   const handleChange = (e) => {
-    setQuery(e.target.value);
-    onSearch(e.target.value);
+    const next = e.target.value;
+    setQuery(next);
+    onSearch(next);
   };
 
   return (
     <div className="search-container">
       <form className="search-bar" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search memes..."
-          value={query}
-          onChange={handleChange}
-        />
-        <button type="submit">
-          🔍
+        <input type="text" placeholder="Search" value={query} onChange={handleChange} />
+        <button type="submit" className="search-button" aria-label="Search">
+          <span className="search-icon" />
         </button>
       </form>
     </div>

@@ -8,11 +8,13 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<CatalogPage />} />
-        <Route path="/upload" element={<UploadPage />} />
-        <Route path="/meme/:id" element={<MemeDetailPage />} />
-      </Routes>
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<CatalogPage />} />
+          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/meme/:id" element={<MemeDetailPage />} />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
 }

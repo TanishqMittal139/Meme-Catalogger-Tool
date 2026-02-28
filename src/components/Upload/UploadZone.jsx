@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 
 function UploadZone({ onFilesSelected }) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -17,9 +17,10 @@ function UploadZone({ onFilesSelected }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+    const files = Array.from(e.dataTransfer.files).filter((file) =>
       file.type.startsWith('image/')
     );
+
     if (files.length > 0) {
       onFilesSelected(files);
     }
@@ -30,7 +31,7 @@ function UploadZone({ onFilesSelected }) {
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files).filter((file) => file.type.startsWith('image/'));
     if (files.length > 0) {
       onFilesSelected(files);
     }
@@ -44,12 +45,8 @@ function UploadZone({ onFilesSelected }) {
       onDrop={handleDrop}
       onClick={handleClick}
     >
-      <div className="upload-zone-icon">📁</div>
-      <div className="upload-zone-text">
-        Drag and drop your memes here
-      </div>
-      <div className="upload-zone-subtext">
-        or click to browse files
+      <div className="upload-select-button">
+        <span>Add file/folder</span>
       </div>
       <input
         ref={fileInputRef}
@@ -57,7 +54,7 @@ function UploadZone({ onFilesSelected }) {
         multiple
         accept="image/*"
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        className="visually-hidden"
       />
     </div>
   );

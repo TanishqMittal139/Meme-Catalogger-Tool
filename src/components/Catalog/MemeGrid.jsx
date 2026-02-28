@@ -3,7 +3,7 @@ import MemeCard from '../Meme/MemeCard';
 function MemeGrid({ memes }) {
   if (memes.length === 0) {
     return (
-      <div className="page-container" style={{ textAlign: 'center' }}>
+      <div className="page-container centered-state">
         <p>No memes found. Try a different search term.</p>
       </div>
     );

@@ -1,56 +1,55 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SearchBar from '../components/Catalog/SearchBar';
 import MemeGrid from '../components/Catalog/MemeGrid';
-import { mockMemes } from '../data/mockMemes';
+import { getMemes } from '../data/memeStorage';
 
 function CatalogPage() {
-  const [filteredMemes, setFilteredMemes] = useState(mockMemes);
+  const [memes] = useState(() => getMemes());
+  const [query, setQuery] = useState('');
 
-  const handleSearch = (query) => {
-    if (!query.trim()) {
-      setFilteredMemes(mockMemes);
-      return;
-    }
+  const filteredMemes = useMemo(() => {
+    if (!query.trim()) return memes;
 
     const searchLower = query.toLowerCase();
-    const results = mockMemes.filter(meme => 
-      meme.title.toLowerCase().includes(searchLower) ||
-      meme.keywords.some(keyword => keyword.toLowerCase().includes(searchLower))
+    return memes.filter(
+      (meme) =>
+        meme.title.toLowerCase().includes(searchLower) ||
+        meme.keywords.some((keyword) => keyword.toLowerCase().includes(searchLower))
     );
-    setFilteredMemes(results);
-  };
+  }, [memes, query]);
 
-  // Sort by downloads for "Most Popular" section
-  const popularMemes = [...mockMemes].sort((a, b) => b.downloads - a.downloads);
+  const popularMemes = useMemo(
+    () => [...memes].sort((a, b) => b.downloads - a.downloads),
+    [memes]
+  );
+
+  const showingSearchResults = query.trim().length > 0;
 
   return (
-    <div>
-      <div className="page-container">
-        <h1 className="page-title">Meme Catalogger</h1>
-        <SearchBar onSearch={handleSearch} />
+    <div className="catalog-page">
+      <div className="page-container catalog-hero">
+        <h1 className="page-title">MEME CATALOGER</h1>
+        <p className="page-subtitle">A Smarter Way to Manage Memes</p>
+        <SearchBar onSearch={setQuery} />
       </div>
-      
+
       <section>
         <div className="catalog-section">
-          <h2 className="section-header">Most Popular</h2>
+          <h2 className="section-header">
+            {showingSearchResults ? 'Search Result:' : 'Mostly Recently Used:'}
+          </h2>
           <div className="grid-container">
-          <MemeGrid
-            memes={
-              filteredMemes.length === mockMemes.length
-                ? popularMemes.slice(0, 4)
-                : filteredMemes
-            }
-          />
+            <MemeGrid memes={showingSearchResults ? filteredMemes : popularMemes.slice(0, 4)} />
           </div>
         </div>
       </section>
 
-      {filteredMemes.length === mockMemes.length && (
+      {!showingSearchResults && (
         <section>
           <div className="catalog-section">
-            <h2 className="section-header">All Memes</h2>
+            <h2 className="section-header">All Memes:</h2>
             <div className="grid-container">
-            <MemeGrid memes={mockMemes} />
+              <MemeGrid memes={memes} />
             </div>
           </div>
         </section>
