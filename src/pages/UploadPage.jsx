@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import JSZip from 'jszip';
 import UploadZone from '../components/Upload/UploadZone';
 import { addMemes } from '../data/memeStorage';
 
@@ -16,10 +17,50 @@ const fileToDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+
+const isImageFile = (fileName, mimeType = '') =>
+  mimeType.startsWith('image/') ||
+  imageExtensions.some((extension) => fileName.toLowerCase().endsWith(extension));
+
+const isZipFile = (fileName, mimeType = '') =>
+  mimeType === 'application/zip' ||
+  mimeType === 'application/x-zip-compressed' ||
+  fileName.toLowerCase().endsWith('.zip');
+
+const getMimeTypeFromName = (fileName) => {
+  const lowerName = fileName.toLowerCase();
+  if (lowerName.endsWith('.png')) return 'image/png';
+  if (lowerName.endsWith('.gif')) return 'image/gif';
+  if (lowerName.endsWith('.webp')) return 'image/webp';
+  if (lowerName.endsWith('.bmp')) return 'image/bmp';
+  return 'image/jpeg';
+};
+
+const extractImagesFromZip = async (zipFile) => {
+  const zip = await JSZip.loadAsync(zipFile);
+  const entries = Object.values(zip.files).filter(
+    (entry) => !entry.dir && isImageFile(entry.name)
+  );
+
+  const extractedFiles = await Promise.all(
+    entries.map(async (entry) => {
+      const blob = await entry.async('blob');
+      const fileName = entry.name.split('/').pop() || `meme-${Date.now()}.jpg`;
+      return new File([blob], fileName, {
+        type: blob.type || getMimeTypeFromName(fileName)
+      });
+    })
+  );
+
+  return extractedFiles;
+};
+
 function UploadPage() {
   const navigate = useNavigate();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPreparingFiles, setIsPreparingFiles] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -27,14 +68,43 @@ function UploadPage() {
     };
   }, [uploadedFiles]);
 
-  const handleFilesSelected = (files) => {
-    const newFiles = files.map((file) => ({
-      id: Date.now() + Math.random(),
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name
-    }));
-    setUploadedFiles((prev) => [...prev, ...newFiles]);
+  const handleFilesSelected = async (files) => {
+    if (!files.length) return;
+
+    setIsPreparingFiles(true);
+    try {
+      const resolvedFiles = [];
+
+      for (const file of files) {
+        if (isImageFile(file.name, file.type)) {
+          resolvedFiles.push(file);
+          continue;
+        }
+
+        if (isZipFile(file.name, file.type)) {
+          const extracted = await extractImagesFromZip(file);
+          resolvedFiles.push(...extracted);
+        }
+      }
+
+      if (!resolvedFiles.length) {
+        alert('No image files were found in the selected files/folder/zip.');
+        return;
+      }
+
+      const newFiles = resolvedFiles.map((file) => ({
+        id: Date.now() + Math.random(),
+        file,
+        preview: URL.createObjectURL(file),
+        name: file.name
+      }));
+
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+    } catch (error) {
+      alert(error.message || 'Could not process selected files.');
+    } finally {
+      setIsPreparingFiles(false);
+    }
   };
 
   const handleRemoveFile = (id) => {
@@ -48,7 +118,7 @@ function UploadPage() {
   };
 
   const handleUpload = async () => {
-    if (uploadedFiles.length === 0 || isSaving) return;
+    if (uploadedFiles.length === 0 || isSaving || isPreparingFiles) return;
 
     setIsSaving(true);
     try {
@@ -93,8 +163,8 @@ function UploadPage() {
       )}
 
       <div className="upload-actions">
-        <button className="btn btn-long" onClick={handleUpload} disabled={isSaving}>
-          Upload Meme
+        <button className="btn btn-long" onClick={handleUpload} disabled={isSaving || isPreparingFiles}>
+          {isPreparingFiles ? 'Preparing Files...' : 'Upload Meme'}
         </button>
       </div>
     </div>

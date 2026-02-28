@@ -54,7 +54,7 @@ a {
   text-decoration: none;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 1.5rem;
   letter-spacing: 0.02em;
   background: transparent;
 }
@@ -78,7 +78,7 @@ a {
 .app-main {
   width: min(100%, var(--max-width));
   margin: 0 auto;
-  padding: 56px 50px 70px;
+  padding: 42px 40px 56px;
 }
 
 .page-container {
@@ -90,7 +90,7 @@ a {
 }
 
 .page-title {
-  font-size: 5.25rem;
+  font-size: 3.6rem;
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -98,18 +98,18 @@ a {
 
 .page-subtitle {
   margin-top: 6px;
-  font-size: 2.2rem;
+  font-size: 1.55rem;
   font-weight: 700;
 }
 
 .search-container {
-  margin-top: 42px;
+  margin-top: 28px;
 }
 
 .search-bar {
   width: min(100%, 760px);
   margin: 0 auto;
-  height: 66px;
+  height: 56px;
   border-radius: 999px;
   background: #e9e9ea;
   border: 1px solid #d0d0d3;
@@ -123,7 +123,7 @@ a {
   border: none;
   background: transparent;
   color: #313236;
-  font-size: 2.2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   outline: none;
 }
@@ -164,11 +164,11 @@ a {
 }
 
 .catalog-section {
-  margin-top: 66px;
+  margin-top: 44px;
 }
 
 .section-header {
-  font-size: 4.1rem;
+  font-size: 2.4rem;
   font-weight: 800;
   margin-bottom: 20px;
 }
@@ -229,7 +229,7 @@ a {
 }
 
 .meme-card-title {
-  font-size: 2rem;
+  font-size: 1.35rem;
   font-weight: 800;
 }
 
@@ -238,7 +238,7 @@ a {
 }
 
 .centered-state p {
-  font-size: 1.7rem;
+  font-size: 1.2rem;
 }
 
 .upload-page {
@@ -246,7 +246,7 @@ a {
 }
 
 .upload-page .page-title {
-  font-size: 4.2rem;
+  font-size: 3rem;
 }
 
 .upload-zone {
@@ -259,11 +259,25 @@ a {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: pointer;
+  padding: 20px;
 }
 
 .upload-zone.drag-over {
   background: #d5d5d8;
+}
+
+.upload-zone-text {
+  color: #1d1e22;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.upload-zone-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .upload-select-button {
@@ -271,10 +285,12 @@ a {
   align-items: center;
   border: 3px solid var(--soft-border);
   border-radius: 24px;
+  background: #e1e1e3;
   padding: 16px 28px;
   color: #191a1d;
-  font-size: 2rem;
+  font-size: 1.35rem;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .upload-preview-grid {
@@ -318,11 +334,11 @@ a {
 .btn {
   border: 3px solid var(--soft-border);
   border-radius: 999px;
-  padding: 10px 30px;
+  padding: 9px 24px;
   background: #dfdfe1;
   color: #1a1b1f;
   font-weight: 800;
-  font-size: 2rem;
+  font-size: 1.3rem;
   cursor: pointer;
 }
 
@@ -337,16 +353,16 @@ a {
 }
 
 .btn-pill {
-  min-width: 180px;
+  min-width: 148px;
 }
 
 .btn-circle {
-  width: 74px;
-  height: 74px;
-  min-width: 74px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
   border-radius: 50%;
   padding: 0;
-  font-size: 1.35rem;
+  font-size: 0.95rem;
 }
 
 .btn-danger-soft {
@@ -360,28 +376,24 @@ a {
 
 .detail-top-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
 }
 
 .detail-title {
   text-align: center;
-  font-size: 5.25rem;
-  margin-bottom: 0;
-}
-
-.detail-subtitle {
-  text-align: center;
-  font-size: 1.55rem;
-  font-weight: 700;
-  margin-bottom: 20px;
+  font-size: 2.9rem;
+  margin-bottom: 18px;
 }
 
 .detail-layout {
   display: grid;
-  grid-template-columns: 1fr 1.34fr;
-  gap: 40px;
+  grid-template-columns: 1.15fr 1.25fr;
+  gap: 24px;
+  align-items: start;
 }
 
 .detail-image-wrap {
@@ -391,62 +403,87 @@ a {
 
 .meme-detail-image {
   width: 100%;
-  border-radius: 34px;
+  min-height: 340px;
+  border-radius: 42px;
   border: 4px solid #111215;
   object-fit: cover;
   aspect-ratio: 1 / 1;
+  background: #d8dde4;
 }
 
 .detail-right {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .detail-pill-field,
 .detail-pill-label,
 .detail-box {
-  background: var(--soft);
-  border: 2px solid var(--soft-border);
-  color: #28292d;
+  background: #d8d8da;
+  border: 5px solid #999ca1;
+  color: #1f2024;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .detail-pill-field {
-  min-height: 50px;
+  min-height: 52px;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  font-size: 1.9rem;
+  font-size: 1.15rem;
   font-weight: 500;
 }
 
 .detail-pill-label {
   border-radius: 999px;
   width: fit-content;
-  min-width: 230px;
-  padding: 8px 18px;
-  font-size: 1.9rem;
+  min-width: 180px;
+  padding: 8px 16px;
+  font-size: 1rem;
   font-weight: 800;
 }
 
 .detail-box {
-  border-radius: 36px;
-  min-height: 140px;
+  border-radius: 46px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 2.1rem;
+  font-size: 1rem;
   font-weight: 500;
-  padding: 26px;
+  padding: 24px;
+  line-height: 1.4;
+}
+
+.detail-edit-input {
+  width: 100%;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+}
+
+.detail-edit-textarea {
+  width: 100%;
+  resize: vertical;
+  display: block;
+  text-align: left;
+  border: 5px solid #999ca1;
+  outline: none;
+  font-family: inherit;
+}
+
+.detail-caption {
+  min-height: 220px;
 }
 
 .detail-tags {
-  min-height: 130px;
+  min-height: 160px;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   font-weight: 500;
 }
 
@@ -456,8 +493,14 @@ a {
 
 .meme-detail-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 6px;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.detail-action-btn {
+  min-width: 0;
+  flex: 1;
 }
 
 .visually-hidden {
@@ -483,7 +526,7 @@ a {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -493,7 +536,7 @@ a {
   border-radius: 999px;
   border: 2px solid var(--soft-border);
   padding: 0 20px;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .auth-footer {
@@ -510,7 +553,7 @@ a {
   }
 
   .app-main {
-    padding: 32px 20px 60px;
+    padding: 28px 18px 48px;
   }
 
   .nav-strip {
@@ -520,7 +563,7 @@ a {
   .nav-tab {
     width: 33.33%;
     height: 80px;
-    font-size: 1.35rem;
+    font-size: 1.1rem;
   }
 
   .navbar-logo {
@@ -528,11 +571,11 @@ a {
   }
 
   .page-title {
-    font-size: 3.1rem;
+    font-size: 2.3rem;
   }
 
   .page-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
   }
 
   .search-bar {
@@ -541,11 +584,11 @@ a {
   }
 
   .search-bar input {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
   }
 
   .section-header {
-    font-size: 2rem;
+    font-size: 1.55rem;
   }
 
   .meme-grid {
@@ -553,20 +596,25 @@ a {
   }
 
   .meme-card-title {
-    font-size: 1.35rem;
+    font-size: 1.05rem;
   }
 
   .detail-title {
-    font-size: 3rem;
-  }
-
-  .detail-subtitle {
-    font-size: 1.1rem;
+    font-size: 2.1rem;
+    margin-bottom: 12px;
   }
 
   .detail-layout {
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: 16px;
+  }
+
+  .detail-top-row {
+    margin-bottom: 12px;
+  }
+
+  .meme-detail-image {
+    min-height: 240px;
   }
 
   .btn,
@@ -574,7 +622,26 @@ a {
   .detail-pill-field,
   .detail-box,
   .upload-select-button {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+  }
+
+  .detail-pill-label {
+    min-width: 150px;
+  }
+
+  .detail-caption,
+  .detail-tags {
+    min-height: 120px;
+  }
+
+  .meme-detail-actions {
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+
+  .meme-detail-actions .btn {
+    min-width: 100%;
+    flex: none;
   }
 }
 
@@ -590,5 +657,15 @@ a {
 
   .upload-zone {
     min-height: 250px;
+  }
+
+  .upload-zone-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .upload-select-button {
+    width: 100%;
+    justify-content: center;
   }
 }

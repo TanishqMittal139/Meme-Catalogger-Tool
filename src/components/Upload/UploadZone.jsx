@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 function UploadZone({ onFilesSelected }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -17,24 +18,27 @@ function UploadZone({ onFilesSelected }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files).filter((file) =>
-      file.type.startsWith('image/')
-    );
+    const files = Array.from(e.dataTransfer.files);
 
     if (files.length > 0) {
       onFilesSelected(files);
     }
   };
 
-  const handleClick = () => {
+  const handleChooseFiles = () => {
     fileInputRef.current?.click();
   };
 
+  const handleChooseFolder = () => {
+    folderInputRef.current?.click();
+  };
+
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files).filter((file) => file.type.startsWith('image/'));
+    const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       onFilesSelected(files);
     }
+    e.target.value = '';
   };
 
   return (
@@ -43,15 +47,30 @@ function UploadZone({ onFilesSelected }) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleClick}
     >
-      <div className="upload-select-button">
-        <span>Add file/folder</span>
+      <p className="upload-zone-text">Drag images, folders, or .zip files here</p>
+      <div className="upload-zone-buttons">
+        <button className="upload-select-button" onClick={handleChooseFiles} type="button">
+          Add Files / .zip
+        </button>
+        <button className="upload-select-button" onClick={handleChooseFolder} type="button">
+          Add Folder
+        </button>
       </div>
       <input
         ref={fileInputRef}
         type="file"
         multiple
+        accept="image/*,.zip,application/zip,application/x-zip-compressed"
+        onChange={handleFileChange}
+        className="visually-hidden"
+      />
+      <input
+        ref={folderInputRef}
+        type="file"
+        multiple
+        webkitdirectory=""
+        directory=""
         accept="image/*"
         onChange={handleFileChange}
         className="visually-hidden"

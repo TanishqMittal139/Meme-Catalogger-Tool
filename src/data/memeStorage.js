@@ -54,3 +54,17 @@ export const deleteMemeById = (id) => {
   saveMemes(updatedMemes);
   return updatedMemes;
 };
+
+export const updateMemeById = (id, updates) => {
+  const existingMemes = getMemes();
+  const updatedMemes = existingMemes.map((meme) => {
+    if (meme.id !== id) return meme;
+    return {
+      ...meme,
+      ...updates
+    };
+  });
+
+  saveMemes(updatedMemes);
+  return updatedMemes;
+};
