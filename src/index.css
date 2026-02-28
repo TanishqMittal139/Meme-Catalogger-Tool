@@ -1,7 +1,7 @@
 :root {
   --bg: #3f4043;
   --bg-top: #292a2d;
-  --bg-top-active: #3b3c40;
+  --bg-top-active: #ffd008;
   --panel: #2d2e32;
   --text: #f1f1f1;
   --text-dark: #1f2023;
@@ -36,7 +36,7 @@ a {
 
 .navbar {
   width: 100%;
-  background: linear-gradient(90deg, #252629 0%, #2b2c30 100%);
+  background: #7dc5ff;
   border-bottom: 1px solid #33353a;
 }
 
@@ -61,7 +61,7 @@ a {
 
 .nav-logo-tab {
   padding: 0 18px;
-  background: #26272b;
+  background: #7dc5ff;
 }
 
 .navbar-logo {
