@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python / Flask
+__pycache__/
+*.pyc
+*.db
+server/.env
+
+!server/memes.db
