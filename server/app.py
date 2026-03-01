@@ -4,6 +4,7 @@ import sqlite3
 from typing import Any
 
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -55,6 +56,11 @@ def init_db() -> None:
             )
             """
         )
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(memes)").fetchall()}
+        if "uploaded_by" not in columns:
+            conn.execute("ALTER TABLE memes ADD COLUMN uploaded_by TEXT DEFAULT 'unknown'")
+        if "keywords" not in columns:
+            conn.execute("ALTER TABLE memes ADD COLUMN keywords TEXT NOT NULL DEFAULT '[]'")
 
         meme_count = conn.execute("SELECT COUNT(*) AS count FROM memes").fetchone()["count"]
         if meme_count == 0:
@@ -84,6 +90,13 @@ def ensure_db_initialized() -> None:
     _db_initialized = True
 
 
+def parse_downloads(value: Any) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("downloads must be a number.") from exc
+
+
 @app.after_request
 def apply_cors(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -95,6 +108,13 @@ def apply_cors(response):
 @app.before_request
 def before_request():
     ensure_db_initialized()
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(error: Exception):
+    if isinstance(error, HTTPException):
+        return error
+    return jsonify({"error": f"Unexpected server error: {error}"}), 500
 
 
 @app.route("/api/health", methods=["GET"])
@@ -133,33 +153,42 @@ def create_memes():
 
     created_memes: list[dict[str, Any]] = []
 
-    with get_connection() as conn:
-        for meme in memes_payload:
-            title = (meme.get("title") or "Untitled Meme").strip()
-            caption = (meme.get("caption") or title).strip()
-            image = meme.get("image")
-            downloads = int(meme.get("downloads") or 0)
-            uploaded_by = (meme.get("uploadedBy") or "you").strip()
-            keywords = meme.get("keywords") or []
+    try:
+        with get_connection() as conn:
+            for meme in memes_payload:
+                if not isinstance(meme, dict):
+                    return jsonify({"error": "Each meme item must be an object."}), 400
 
-            if not image or not isinstance(image, str):
-                return jsonify({"error": "Each meme must include an image string."}), 400
+                title = (meme.get("title") or "Untitled Meme").strip()
+                caption = (meme.get("caption") or title).strip()
+                image = meme.get("image")
+                try:
+                    downloads = parse_downloads(meme.get("downloads"))
+                except ValueError as error:
+                    return jsonify({"error": str(error)}), 400
+                uploaded_by = (meme.get("uploadedBy") or "you").strip()
+                keywords = meme.get("keywords") or []
 
-            if not isinstance(keywords, list):
-                return jsonify({"error": "keywords must be an array."}), 400
+                if not image or not isinstance(image, str):
+                    return jsonify({"error": "Each meme must include an image string."}), 400
 
-            cursor = conn.execute(
-                """
-                INSERT INTO memes (title, caption, image, downloads, uploaded_by, keywords)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (title, caption, image, downloads, uploaded_by, json.dumps(keywords)),
-            )
-            meme_id = cursor.lastrowid
-            row = conn.execute("SELECT * FROM memes WHERE id = ?", (meme_id,)).fetchone()
-            created_memes.append(row_to_meme(row))
+                if not isinstance(keywords, list):
+                    return jsonify({"error": "keywords must be an array."}), 400
 
-        conn.commit()
+                cursor = conn.execute(
+                    """
+                    INSERT INTO memes (title, caption, image, downloads, uploaded_by, keywords)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (title, caption, image, downloads, uploaded_by, json.dumps(keywords)),
+                )
+                meme_id = cursor.lastrowid
+                row = conn.execute("SELECT * FROM memes WHERE id = ?", (meme_id,)).fetchone()
+                created_memes.append(row_to_meme(row))
+
+            conn.commit()
+    except sqlite3.DatabaseError as error:
+        return jsonify({"error": f"Database error while creating memes: {error}"}), 500
 
     return jsonify({"memes": created_memes}), 201
 
@@ -190,7 +219,10 @@ def update_meme(meme_id: int):
             value = json.dumps(value)
 
         if payload_key == "downloads":
-            value = int(value or 0)
+            try:
+                value = parse_downloads(value)
+            except ValueError as error:
+                return jsonify({"error": str(error)}), 400
 
         update_clauses.append(f"{column_name} = ?")
         update_values.append(value)
