@@ -4,12 +4,45 @@ cd /d "%~dp0"
 
 set "FRONTEND_PORT=5173"
 set "BACKEND_PORT=5000"
+set "EXPECTED_BRANCH=database-testing"
 
 where python >nul 2>nul
 if errorlevel 1 (
   echo ERROR: Python not found. Install Python and try again.
   pause
   exit /b 1
+)
+
+where git >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: Git not found. Install Git and try again.
+  pause
+  exit /b 1
+)
+
+set "CURRENT_BRANCH="
+for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURRENT_BRANCH=%%B"
+if not defined CURRENT_BRANCH (
+  echo ERROR: Could not detect git branch.
+  pause
+  exit /b 1
+)
+
+if /I not "%CURRENT_BRANCH%"=="%EXPECTED_BRANCH%" (
+  echo ERROR: Current branch is "%CURRENT_BRANCH%". Switch to "%EXPECTED_BRANCH%" first.
+  pause
+  exit /b 1
+)
+
+echo Updating latest code from origin/%EXPECTED_BRANCH%...
+git fetch origin %EXPECTED_BRANCH%
+if errorlevel 1 (
+  echo WARNING: git fetch failed. Continuing with local code.
+) else (
+  git pull --ff-only origin %EXPECTED_BRANCH%
+  if errorlevel 1 (
+    echo WARNING: git pull failed. Continuing with local code.
+  )
 )
 
 IF NOT EXIST node_modules (
@@ -20,8 +53,14 @@ if "%MEME_DB_PATH%"=="" (
   set "MEME_DB_PATH=%~dp0server\memes.db"
 )
 
-start "Meme Catalogger (Flask)" cmd /k "cd /d ""%~dp0server"" && set ""FLASK_PORT=%BACKEND_PORT%"" && set ""MEME_DB_PATH=%MEME_DB_PATH%"" && python -c ""import flask"" 1>nul 2>nul || pip install -r requirements.txt && python app.py"
-start "Meme Catalogger (Vite)" cmd /k "npm run dev -- --host 127.0.0.1 --port %FRONTEND_PORT% --strictPort"
+for %%P in (%BACKEND_PORT% %FRONTEND_PORT%) do (
+  for /f "tokens=5" %%I in ('netstat -ano ^| findstr /R /C:":%%P .*LISTENING"') do (
+    taskkill /PID %%I /F >nul 2>nul
+  )
+)
+
+start "Meme Catalogger (Flask)" cmd /k "cd /d ""%~dp0server"" && set ""FLASK_PORT=%BACKEND_PORT%"" && set ""MEME_DB_PATH=%MEME_DB_PATH%"" && python ""%~dp0server\app.py"""
+start "Meme Catalogger (Vite)" cmd /k "cd /d ""%~dp0"" && npx vite --host 127.0.0.1 --port %FRONTEND_PORT% --strictPort"
 
 timeout /t 3 >nul
 start "" "http://127.0.0.1:%FRONTEND_PORT%"
