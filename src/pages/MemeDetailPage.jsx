@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { deleteMemeById, getMemes, updateMemeById } from '../data/memeStorage';
+import { deleteMemeById, getMemeById, updateMemeById } from '../data/memeApi';
 
 function MemeDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [memes, setMemes] = useState(() => getMemes());
+  const [meme, setMeme] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editFields, setEditFields] = useState({
     title: '',
@@ -14,7 +16,31 @@ function MemeDetailPage() {
   });
 
   const memeId = Number(id);
-  const meme = useMemo(() => memes.find((item) => item.id === memeId) || null, [memes, memeId]);
+
+  useEffect(() => {
+    const loadMeme = async () => {
+      setIsLoading(true);
+      setLoadError('');
+
+      try {
+        const fetchedMeme = await getMemeById(memeId);
+        setMeme(fetchedMeme);
+      } catch (error) {
+        setMeme(null);
+        setLoadError(error.message || 'Could not load meme.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (!Number.isFinite(memeId)) {
+      setLoadError('Invalid meme id.');
+      setIsLoading(false);
+      return;
+    }
+
+    loadMeme();
+  }, [memeId]);
 
   useEffect(() => {
     if (!meme) return;
@@ -25,10 +51,18 @@ function MemeDetailPage() {
     });
   }, [meme]);
 
+  if (isLoading) {
+    return (
+      <div className="page-container centered-state">
+        <h1 className="page-title">Loading Meme...</h1>
+      </div>
+    );
+  }
+
   if (!meme) {
     return (
       <div className="page-container centered-state">
-        <h1 className="page-title">Meme Not Found</h1>
+        <h1 className="page-title">{loadError || 'Meme Not Found'}</h1>
         <button className="btn btn-pill" onClick={() => navigate('/')}>
           Return
         </button>
@@ -36,13 +70,16 @@ function MemeDetailPage() {
     );
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const confirmed = window.confirm(`Delete "${meme.title}"?`);
     if (!confirmed) return;
 
-    const updatedMemes = deleteMemeById(memeId);
-    setMemes(updatedMemes);
-    navigate('/');
+    try {
+      await deleteMemeById(memeId);
+      navigate('/');
+    } catch (error) {
+      alert(error.message || 'Delete failed.');
+    }
   };
 
   const handleDownload = () => {
@@ -74,7 +111,7 @@ function MemeDetailPage() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const cleanedTitle = editFields.title.trim() || 'Untitled Meme';
     const cleanedCaption = editFields.caption.trim() || cleanedTitle;
     const cleanedKeywords = editFields.tags
@@ -83,14 +120,19 @@ function MemeDetailPage() {
       .filter(Boolean);
 
     const uniqueKeywords = Array.from(new Set(cleanedKeywords));
-    const updatedMemes = updateMemeById(memeId, {
-      title: cleanedTitle,
-      caption: cleanedCaption,
-      keywords: uniqueKeywords
-    });
 
-    setMemes(updatedMemes);
-    setIsEditing(false);
+    try {
+      const updatedMeme = await updateMemeById(memeId, {
+        title: cleanedTitle,
+        caption: cleanedCaption,
+        keywords: uniqueKeywords
+      });
+
+      setMeme(updatedMeme);
+      setIsEditing(false);
+    } catch (error) {
+      alert(error.message || 'Save failed.');
+    }
   };
 
   const handleCopy = async () => {

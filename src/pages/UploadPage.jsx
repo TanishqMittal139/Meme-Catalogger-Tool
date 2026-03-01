@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import JSZip from 'jszip';
 import UploadZone from '../components/Upload/UploadZone';
-import { addMemes } from '../data/memeStorage';
+import { createMemes } from '../data/memeApi';
 
 const getTitleFromName = (fileName) => {
   const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
@@ -131,7 +132,7 @@ function UploadPage() {
         }))
       );
 
-      addMemes(memesToSave);
+      await createMemes(memesToSave);
       uploadedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
       setUploadedFiles([]);
       navigate('/');
