@@ -59,10 +59,23 @@ for %%P in (%BACKEND_PORT% %FRONTEND_PORT%) do (
   )
 )
 
-start "Meme Catalogger (Flask)" cmd /k "cd /d ""%~dp0server"" && set ""FLASK_PORT=%BACKEND_PORT%"" && set ""MEME_DB_PATH=%MEME_DB_PATH%"" && python ""%~dp0server\app.py"""
+start "Meme Catalogger (Flask)" cmd /k "cd /d ""%~dp0server"" && set ""FLASK_PORT=%BACKEND_PORT%"" && set ""MEME_DB_PATH=%MEME_DB_PATH%"" && python app.py"
 start "Meme Catalogger (Vite)" cmd /k "cd /d ""%~dp0"" && npx vite --host 127.0.0.1 --port %FRONTEND_PORT% --strictPort"
 
-timeout /t 3 >nul
+set "BACKEND_READY=0"
+for /l %%A in (1,1,20) do (
+  powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:%BACKEND_PORT%/api/health' -UseBasicParsing -TimeoutSec 1; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+  if not errorlevel 1 (
+    set "BACKEND_READY=1"
+    goto :open_browser
+  )
+  timeout /t 1 >nul
+)
+
+:open_browser
+if "%BACKEND_READY%"=="0" (
+  echo WARNING: Backend did not report healthy within 20 seconds.
+)
 start "" "http://127.0.0.1:%FRONTEND_PORT%"
 
 endlocal
