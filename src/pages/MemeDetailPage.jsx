@@ -153,6 +153,7 @@ function MemeDetailPage() {
 
   const caption = meme.caption || meme.title || 'No caption provided.';
   const tags = meme.keywords?.length ? meme.keywords.map((tag) => `#${tag}`) : ['#meme'];
+  const isAnalyzing = meme.aiStatus === 'queued' || meme.aiStatus === 'processing';
 
   return (
     <div className="meme-detail page-container">
@@ -184,6 +185,9 @@ function MemeDetailPage() {
         </div>
 
         <div className="detail-right">
+          {isAnalyzing ? <p>Analyzing meme metadata in the background...</p> : null}
+          {meme.aiStatus === 'failed' && meme.aiError ? <p>AI analysis failed: {meme.aiError}</p> : null}
+
           {isEditing ? (
             <input
               className="detail-pill-field detail-edit-input"

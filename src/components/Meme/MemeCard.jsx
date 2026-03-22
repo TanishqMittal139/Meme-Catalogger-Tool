@@ -32,6 +32,10 @@ function MemeCard({ meme }) {
 
       <div className="meme-card-info">
         <div className="meme-card-title">{meme.title}</div>
+        {meme.aiStatus === 'queued' || meme.aiStatus === 'processing' ? (
+          <div className="meme-card-status">Analyzing...</div>
+        ) : null}
+        {meme.aiStatus === 'failed' ? <div className="meme-card-status">AI analysis failed</div> : null}
       </div>
     </div>
   );
