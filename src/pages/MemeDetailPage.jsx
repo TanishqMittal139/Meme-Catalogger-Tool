@@ -51,6 +51,23 @@ function MemeDetailPage() {
     });
   }, [meme]);
 
+  useEffect(() => {
+    if (!meme || (meme.aiStatus !== 'queued' && meme.aiStatus !== 'processing')) {
+      return undefined;
+    }
+
+    const pollHandle = window.setInterval(async () => {
+      try {
+        const refreshedMeme = await getMemeById(memeId);
+        setMeme(refreshedMeme);
+      } catch {
+        // Keep the existing meme visible while background analysis continues.
+      }
+    }, 2500);
+
+    return () => window.clearInterval(pollHandle);
+  }, [meme, memeId]);
+
   if (isLoading) {
     return (
       <div className="page-container centered-state">
@@ -153,6 +170,7 @@ function MemeDetailPage() {
 
   const caption = meme.caption || meme.title || 'No caption provided.';
   const tags = meme.keywords?.length ? meme.keywords.map((tag) => `#${tag}`) : ['#meme'];
+  const isAnalyzing = meme.aiStatus === 'queued' || meme.aiStatus === 'processing';
 
   return (
     <div className="meme-detail page-container">
@@ -184,6 +202,9 @@ function MemeDetailPage() {
         </div>
 
         <div className="detail-right">
+          {isAnalyzing ? <p>Analyzing meme metadata in the background...</p> : null}
+          {meme.aiStatus === 'failed' && meme.aiError ? <p>AI analysis failed: {meme.aiError}</p> : null}
+
           {isEditing ? (
             <input
               className="detail-pill-field detail-edit-input"
