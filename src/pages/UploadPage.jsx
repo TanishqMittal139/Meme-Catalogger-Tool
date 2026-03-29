@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import UploadZone from '../components/Upload/UploadZone';
 import { createMemes } from '../data/memeApi';
+import UploadProgressCard from '../components/Upload/UploadProgressCard';
+import { startUploadBatch, useUploadBatchProgress } from '../data/uploadProgress';
 
 const getTitleFromName = (fileName) => {
   const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
@@ -57,10 +58,10 @@ const extractImagesFromZip = async (zipFile) => {
 };
 
 function UploadPage() {
-  const navigate = useNavigate();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isPreparingFiles, setIsPreparingFiles] = useState(false);
+  const uploadProgress = useUploadBatchProgress();
 
   useEffect(() => {
     return () => {
@@ -132,10 +133,10 @@ function UploadPage() {
         }))
       );
 
-      await createMemes(memesToSave);
+      const createdMemes = await createMemes(memesToSave);
+      startUploadBatch(createdMemes.map((meme) => meme.id));
       uploadedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
       setUploadedFiles([]);
-      navigate('/');
     } catch (error) {
       alert(error.message || 'Upload failed.');
     } finally {
@@ -148,6 +149,8 @@ function UploadPage() {
       <h1 className="page-title">Upload</h1>
 
       <UploadZone onFilesSelected={handleFilesSelected} />
+
+      <UploadProgressCard progress={uploadProgress} className="upload-page-progress" />
 
       {uploadedFiles.length > 0 && (
         <div className="upload-preview-grid">
@@ -164,7 +167,7 @@ function UploadPage() {
 
       <div className="upload-actions">
         <button className="btn btn-long" onClick={handleUpload} disabled={isSaving || isPreparingFiles}>
-          {isPreparingFiles ? 'Preparing Files...' : 'Upload Meme'}
+          {isPreparingFiles ? 'Preparing Files...' : isSaving ? 'Starting Upload...' : 'Upload Meme'}
         </button>
       </div>
     </div>

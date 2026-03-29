@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 set "FRONTEND_PORT=5173"
 set "BACKEND_PORT=5000"
-set "EXPECTED_BRANCH=database-testing"
+set "EXPECTED_BRANCH=ai-testing"
 
 where python >nul 2>nul
 if errorlevel 1 (

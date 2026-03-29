@@ -225,7 +225,7 @@ function MemeDetailPage() {
               placeholder="Write a caption"
             />
           ) : (
-            <div className="detail-box detail-caption">{caption}</div>
+            <div className="detail-box detail-caption detail-caption-text">{caption}</div>
           )}
 
           <div className="detail-pill-label">Tags</div>
@@ -239,7 +239,9 @@ function MemeDetailPage() {
           ) : (
             <div className="detail-box detail-tags">
               {tags.map((tag) => (
-                <p key={tag}>{tag}</p>
+                <span key={tag} className="detail-tag-chip">
+                  {tag}
+                </span>
               ))}
             </div>
           )}

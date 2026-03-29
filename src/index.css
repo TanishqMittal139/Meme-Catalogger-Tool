@@ -46,27 +46,27 @@ a {
 }
 
 .nav-tab {
-  width: 176px;
-  height: 112px;
+  width: 152px;
+  height: 82px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   letter-spacing: 0.02em;
   background: transparent;
 }
 
 .nav-logo-tab {
-  padding: 0 18px;
+  padding: 0 12px;
   background: #7dc5ff;
 }
 
 .navbar-logo {
   width: 100%;
-  max-width: 130px;
+  max-width: 94px;
   height: auto;
   object-fit: contain;
 }
@@ -78,7 +78,7 @@ a {
 .app-main {
   width: min(100%, var(--max-width));
   margin: 0 auto;
-  padding: 42px 40px 56px;
+  padding: 28px 32px 48px;
 }
 
 .page-container {
@@ -209,12 +209,15 @@ a {
   border-radius: 34px;
   overflow: hidden;
   margin: 0;
+  aspect-ratio: 1 / 1;
+  background: #d7dbe2;
+  padding: 12px;
 }
 
 .meme-image-box img {
   width: 100%;
-  height: 198px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
@@ -236,12 +239,13 @@ a {
 .meme-card-info {
   text-align: center;
   color: #1e1f22;
-  padding: 10px 10px 12px;
+  padding: 8px 10px 12px;
 }
 
 .meme-card-title {
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 .centered-state {
@@ -309,6 +313,67 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
+}
+
+.upload-progress-card {
+  margin: 22px auto 0;
+  width: min(100%, 760px);
+  background: #d9edf9;
+  border: 3px solid #89b8d7;
+  border-radius: 28px;
+  padding: 18px 20px 16px;
+  text-align: left;
+  color: #17212b;
+}
+
+.upload-progress-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.upload-progress-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.upload-progress-copy,
+.upload-progress-meta {
+  margin-top: 6px;
+  font-size: 0.96rem;
+  line-height: 1.45;
+}
+
+.upload-progress-count {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.upload-progress-track {
+  width: 100%;
+  height: 16px;
+  margin-top: 14px;
+  background: rgba(23, 33, 43, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f8bc2b 0%, #ffd95a 100%);
+  transition: width 240ms ease;
+}
+
+.catalog-progress-card {
+  margin-top: 24px;
+}
+
+.upload-page-progress {
+  margin-top: 20px;
 }
 
 .upload-preview-item {
@@ -415,17 +480,19 @@ a {
 .meme-detail-image {
   width: 100%;
   min-height: 340px;
+  max-height: 72vh;
   border-radius: 42px;
   border: 4px solid #111215;
-  object-fit: cover;
+  object-fit: contain;
   aspect-ratio: 1 / 1;
   background: #d8dde4;
+  padding: 16px;
 }
 
 .detail-right {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .detail-pill-field,
@@ -443,7 +510,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+  padding: 0 14px;
   font-size: 1.15rem;
   font-weight: 500;
 }
@@ -451,8 +518,9 @@ a {
 .detail-pill-label {
   border-radius: 999px;
   width: fit-content;
-  min-width: 180px;
-  padding: 8px 16px;
+  min-width: 0;
+  align-self: flex-start;
+  padding: 7px 18px;
   font-size: 1rem;
   font-weight: 800;
 }
@@ -461,12 +529,12 @@ a {
   border-radius: 46px;
   min-height: 180px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
   font-size: 1rem;
   font-weight: 500;
-  padding: 24px;
+  padding: 16px 18px;
   line-height: 1.4;
 }
 
@@ -485,21 +553,38 @@ a {
   border: 5px solid #999ca1;
   outline: none;
   font-family: inherit;
+  line-height: 1.55;
 }
 
 .detail-caption {
   min-height: 220px;
 }
 
-.detail-tags {
-  min-height: 160px;
-  flex-direction: column;
-  gap: 8px;
-  font-weight: 500;
+.detail-caption-text {
+  align-items: center;
+  font-size: 1.08rem;
+  line-height: 1.65;
 }
 
-.detail-tags p {
-  margin: 0;
+.detail-tags {
+  min-height: 160px;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 500;
+  align-content: flex-start;
+}
+
+.detail-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ececef;
+  border: 2px solid #a2a6ac;
+  color: #1f2024;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .meme-detail-actions {
@@ -564,7 +649,7 @@ a {
   }
 
   .app-main {
-    padding: 28px 18px 48px;
+    padding: 22px 18px 40px;
   }
 
   .nav-strip {
@@ -573,12 +658,12 @@ a {
 
   .nav-tab {
     width: 33.33%;
-    height: 80px;
-    font-size: 1.1rem;
+    height: 68px;
+    font-size: 1rem;
   }
 
   .navbar-logo {
-    max-width: 84px;
+    max-width: 74px;
   }
 
   .page-title {
@@ -607,7 +692,7 @@ a {
   }
 
   .meme-card-title {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
   }
 
   .detail-title {
@@ -626,6 +711,8 @@ a {
 
   .meme-detail-image {
     min-height: 240px;
+    max-height: none;
+    padding: 12px;
   }
 
   .btn,
@@ -637,7 +724,7 @@ a {
   }
 
   .detail-pill-label {
-    min-width: 150px;
+    min-width: 0;
   }
 
   .detail-caption,
@@ -673,6 +760,11 @@ a {
   .upload-zone-buttons {
     flex-direction: column;
     width: 100%;
+  }
+
+  .upload-progress-header {
+    flex-direction: column;
+    gap: 10px;
   }
 
   .upload-select-button {

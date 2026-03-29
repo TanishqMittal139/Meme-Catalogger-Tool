@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import SearchBar from '../components/Catalog/SearchBar';
 import MemeGrid from '../components/Catalog/MemeGrid';
 import { getMemes } from '../data/memeApi';
+import UploadProgressCard from '../components/Upload/UploadProgressCard';
+import { useUploadBatchProgress } from '../data/uploadProgress';
 
 function CatalogPage() {
   const [memes, setMemes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [query, setQuery] = useState('');
+  const uploadProgress = useUploadBatchProgress();
 
   useEffect(() => {
     const loadMemes = async () => {
@@ -51,6 +54,7 @@ function CatalogPage() {
         <h1 className="page-title">MEME CATALOGER</h1>
         <p className="page-subtitle">A Smarter Way to Manage Memes</p>
         <SearchBar onSearch={setQuery} />
+        <UploadProgressCard progress={uploadProgress} className="catalog-progress-card" />
       </div>
 
       <section>
