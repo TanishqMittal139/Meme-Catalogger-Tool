@@ -10,22 +10,54 @@ function CatalogPage() {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    const loadMemes = async () => {
-      setIsLoading(true);
+    let isCancelled = false;
+
+    const loadMemes = async (showLoadingState = false) => {
+      if (showLoadingState) {
+        setIsLoading(true);
+      }
       setLoadError('');
 
       try {
         const fetchedMemes = await getMemes();
-        setMemes(fetchedMemes);
+        if (!isCancelled) {
+          setMemes(fetchedMemes);
+        }
       } catch (error) {
-        setLoadError(error.message || 'Could not load memes.');
+        if (!isCancelled) {
+          setLoadError(error.message || 'Could not load memes.');
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled && showLoadingState) {
+          setIsLoading(false);
+        }
       }
     };
 
-    loadMemes();
+    loadMemes(true);
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!memes.some((meme) => meme.aiStatus === 'queued' || meme.aiStatus === 'processing')) {
+      return undefined;
+    }
+
+    const pollHandle = window.setInterval(async () => {
+      try {
+        const fetchedMemes = await getMemes();
+        setMemes(fetchedMemes);
+        setLoadError('');
+      } catch (error) {
+        setLoadError(error.message || 'Could not load memes.');
+      }
+    }, 4000);
+
+    return () => window.clearInterval(pollHandle);
+  }, [memes]);
 
   const filteredMemes = useMemo(() => {
     if (!query.trim()) return memes;
