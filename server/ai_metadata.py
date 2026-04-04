@@ -11,7 +11,7 @@ from typing import Any
 
 DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5vl,llama3.2-vision,gemma3")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2-vision,gemma3,llava:13b")
 OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
 OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
 LOCAL_FALLBACK_ENABLED = os.getenv("LOCAL_METADATA_FALLBACK", "false").strip().lower() == "true"
@@ -55,12 +55,8 @@ Return JSON only with this exact shape:
 
 Rules:
 - Read and transcribe visible meme text as accurately as possible.
-- If there is top text, bottom text, captions, labels, or signs, include the exact wording you can read.
-- Prioritize text on the image over guessing from the picture alone.
-- If text is partially readable, transcribe the readable parts instead of inventing the missing words.
 - If there is little or no readable text, return an empty array for visible_text.
-- Describe the joke or situation in plain language, using the visible text when relevant.
-- For reaction memes, explain what reaction or emotion the image communicates.
+- Describe the joke or situation in plain language.
 - Use meme_format only if you are reasonably confident, otherwise return "unknown".
 - confidence must be one of: high, medium, low.
 """
@@ -81,8 +77,6 @@ Rules:
 - Base the metadata on the actual joke and visible text, not generic image description.
 - If visible_text contains an important quote, let it guide the meaning of the meme.
 - Do not call it a different meme format unless the analysis is confident.
-- Do not rewrite the meme into a different joke than the one shown.
-- If the meme is mainly text-driven, anchor the title and caption to that text.
 - Title: 3 to 8 words, natural and specific.
 - Caption: 1 sentence, 12 to 28 words, describing the actual joke or situation.
 - Keywords: 6 to 10 short search tags.
@@ -307,34 +301,12 @@ def generate_openai_meme_metadata(image_data_url: str, max_attempts: int = 2) ->
 
 
 def _ollama_model_candidates() -> list[str]:
-    requested: list[str] = []
+    candidates: list[str] = []
     for item in OLLAMA_MODEL.split(","):
         cleaned = item.strip()
-        if cleaned and cleaned not in requested:
-            requested.append(cleaned)
-
-    installed_models: set[str] = set()
-    try:
-        request = urllib.request.Request(f"{OLLAMA_BASE_URL}/api/tags", method="GET")
-        with urllib.request.urlopen(request, timeout=10) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-        for model in payload.get("models", []):
-            name = str(model.get("name") or "").strip()
-            base_name = name.split(":")[0] if ":" in name else name
-            if name:
-                installed_models.add(name)
-            if base_name:
-                installed_models.add(base_name)
-    except Exception:  # noqa: BLE001
-        return requested or ["gemma3"]
-
-    preferred_installed: list[str] = []
-    for candidate in requested:
-        candidate_base = candidate.split(":")[0]
-        if candidate in installed_models or candidate_base in installed_models:
-            preferred_installed.append(candidate)
-
-    return preferred_installed or requested or ["gemma3"]
+        if cleaned and cleaned not in candidates:
+            candidates.append(cleaned)
+    return candidates or ["gemma3"]
 
 
 def _ollama_chat(model_name: str, prompt: str, image_base64: str | None) -> str:
