@@ -5,6 +5,7 @@ cd /d "%~dp0"
 set "FRONTEND_PORT=5173"
 set "BACKEND_PORT=5000"
 set "EXPECTED_BRANCH=ai-testing"
+set "OLLAMA_EXE=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
 
 where python >nul 2>nul
 if errorlevel 1 (
@@ -51,6 +52,17 @@ IF NOT EXIST node_modules (
 
 if "%MEME_DB_PATH%"=="" (
   set "MEME_DB_PATH=%~dp0server\memes.db"
+)
+
+if exist "%OLLAMA_EXE%" (
+  powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -UseBasicParsing -TimeoutSec 1; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+  if errorlevel 1 (
+    echo Starting Ollama...
+    start "Ollama" "%OLLAMA_EXE%" serve
+    timeout /t 3 >nul
+  )
+) else (
+  echo WARNING: Ollama was not found at "%OLLAMA_EXE%".
 )
 
 for %%P in (%BACKEND_PORT% %FRONTEND_PORT%) do (
