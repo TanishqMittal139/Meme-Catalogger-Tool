@@ -19,6 +19,7 @@ The API runs on `http://127.0.0.1:5000` and exposes:
 
 - `GET /api/memes`
 - `GET /api/memes/<id>`
+- `POST /api/memes/<id>/reanalyze`
 - `POST /api/memes`
 - `PUT /api/memes/<id>`
 - `DELETE /api/memes/<id>`
@@ -31,7 +32,7 @@ Optional:
 
 - `OPENAI_MODEL` to override the default model (`gpt-4.1-mini`)
 - `OLLAMA_BASE_URL` to point at a local Ollama server (default `http://127.0.0.1:11434`)
-- `OLLAMA_MODEL` to choose the local vision model (default `gemma3`)
+- `OLLAMA_MODEL` to choose the local vision model priority list (default `gemma3,llama3.2-vision`)
 - `LOCAL_METADATA_FALLBACK=false` to disable the built-in local fallback generator
 
 Fallback order:
@@ -40,7 +41,13 @@ Fallback order:
 2. Local Ollama vision, if running locally
 3. Built-in local image analysis heuristic
 
-For the most accurate no-credit setup, run Ollama locally with a vision-capable model such as `gemma3`.
+For the most accurate no-credit setup, run Ollama locally with `gemma3`.
+
+Accuracy notes:
+
+- `llava:13b` is older and is usually worse at meme OCR and joke understanding than `gemma3`, so it is no longer the default.
+- The backend now preprocesses uploaded images into cleaner high-contrast variants before sending them to Ollama, which helps with meme text recognition.
+- `StartMemeCatalogger.bat` now checks for the preferred Ollama model and pulls it automatically if it is missing.
 
 ## Use your existing SQLite file
 

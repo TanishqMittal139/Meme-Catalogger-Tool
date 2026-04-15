@@ -588,15 +588,32 @@ a {
 }
 
 .meme-detail-actions {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-top: 2px;
+  align-items: stretch;
 }
 
 .detail-action-btn {
   min-width: 0;
-  flex: 1;
+  min-height: 74px;
+  width: 100%;
+  padding: 10px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.88rem;
+  line-height: 1.15;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.detail-top-row .btn {
+  min-height: 52px;
+  padding: 9px 24px;
+  font-size: 1.05rem;
 }
 
 .visually-hidden {
@@ -733,13 +750,11 @@ a {
   }
 
   .meme-detail-actions {
-    justify-content: stretch;
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
   }
 
   .meme-detail-actions .btn {
     min-width: 100%;
-    flex: none;
   }
 }
 

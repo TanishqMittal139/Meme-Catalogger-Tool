@@ -49,3 +49,8 @@ export const deleteMemeById = (id) =>
   request(`/memes/${id}`, {
     method: 'DELETE'
   });
+
+export const reanalyzeMemeById = (id) =>
+  request(`/memes/${id}/reanalyze`, {
+    method: 'POST'
+  });

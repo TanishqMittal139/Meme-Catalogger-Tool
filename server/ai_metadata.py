@@ -1,5 +1,6 @@
 import base64
 import binascii
+import io
 import json
 import os
 import re
@@ -8,12 +9,14 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from PIL import Image, ImageEnhance
+
 
 DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2-vision,gemma3,llava:13b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3,llama3.2-vision")
 OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
-OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
+OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.1"))
 LOCAL_FALLBACK_ENABLED = os.getenv("LOCAL_METADATA_FALLBACK", "false").strip().lower() == "true"
 
 _PROMPT = """You generate high-quality metadata for memes from the actual image content.
@@ -27,6 +30,7 @@ Return JSON only with this exact shape:
 
 Instructions:
 - Carefully inspect both image content and any visible meme text.
+- Read text before guessing the joke or meme format.
 - If text appears in the meme, use it to understand the joke before naming the meme.
 - Describe the actual joke, reaction, or situation shown, not just generic visual traits.
 - If the image is a classic meme format, name the format only if you are confident.
@@ -55,6 +59,7 @@ Return JSON only with this exact shape:
 
 Rules:
 - Read and transcribe visible meme text as accurately as possible.
+- Prefer exact OCR-style transcription over paraphrasing.
 - If there is little or no readable text, return an empty array for visible_text.
 - Describe the joke or situation in plain language.
 - Use meme_format only if you are reasonably confident, otherwise return "unknown".
@@ -241,6 +246,43 @@ def _decode_data_url(image_data_url: str) -> tuple[str, bytes]:
     return mime_type, image_bytes
 
 
+def _optimize_image_bytes(image_bytes: bytes, mime_type: str) -> tuple[str, list[str]]:
+    try:
+        with Image.open(io.BytesIO(image_bytes)) as source_image:
+            image = source_image.convert("RGB")
+    except Exception as exc:  # noqa: BLE001
+        raise MemeMetadataError("Meme image could not be opened for AI preprocessing.") from exc
+
+    max_dimension = max(image.size)
+    if max_dimension > 1568:
+        scale = 1568 / float(max_dimension)
+        resized_size = (
+            max(1, int(image.width * scale)),
+            max(1, int(image.height * scale)),
+        )
+        image = image.resize(resized_size, Image.Resampling.LANCZOS)
+
+    format_name = "PNG" if mime_type == "image/png" else "JPEG"
+    output_mime_type = "image/png" if format_name == "PNG" else "image/jpeg"
+
+    variants: list[Image.Image] = [image]
+
+    grayscale = ImageEnhance.Contrast(image.convert("L")).enhance(2.1).convert("RGB")
+    sharpened = ImageEnhance.Sharpness(grayscale).enhance(2.4)
+    variants.append(sharpened)
+
+    encoded_variants: list[str] = []
+    for variant in variants:
+        buffer = io.BytesIO()
+        save_kwargs: dict[str, Any] = {"format": format_name}
+        if format_name == "JPEG":
+            save_kwargs.update({"quality": 95, "optimize": True})
+        variant.save(buffer, **save_kwargs)
+        encoded_variants.append(base64.b64encode(buffer.getvalue()).decode("utf-8"))
+
+    return output_mime_type, encoded_variants
+
+
 def generate_openai_meme_metadata(image_data_url: str, max_attempts: int = 2) -> dict[str, Any]:
     client = _get_client()
     last_error: Exception | None = None
@@ -309,13 +351,78 @@ def _ollama_model_candidates() -> list[str]:
     return candidates or ["gemma3"]
 
 
-def _ollama_chat(model_name: str, prompt: str, image_base64: str | None) -> str:
+def _fetch_ollama_models() -> list[str]:
+    request = urllib.request.Request(f"{OLLAMA_BASE_URL}/api/tags", method="GET")
+
+    with urllib.request.urlopen(request, timeout=OLLAMA_TIMEOUT_SECONDS) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+
+    models = payload.get("models")
+    if not isinstance(models, list):
+        return []
+
+    names: list[str] = []
+    for item in models:
+        if not isinstance(item, dict):
+            continue
+        model_name = item.get("name")
+        if isinstance(model_name, str) and model_name.strip():
+            names.append(model_name.strip())
+
+    return names
+
+
+def _resolve_ollama_model_candidates() -> list[str]:
+    configured = _ollama_model_candidates()
+
+    try:
+        installed_models = _fetch_ollama_models()
+    except urllib.error.URLError as exc:
+        raise MemeMetadataError(
+            f"Ollama is not reachable at {OLLAMA_BASE_URL}. Start Ollama and pull a vision model such as `gemma3`."
+        ) from exc
+
+    if not installed_models:
+        raise MemeMetadataError(
+            "Ollama is running but no local models are installed. Run `ollama pull gemma3`."
+        )
+
+    resolved: list[str] = []
+    installed_lower = {model.lower(): model for model in installed_models}
+
+    for candidate in configured:
+        candidate_lower = candidate.lower()
+        if candidate_lower in installed_lower:
+            resolved.append(installed_lower[candidate_lower])
+            continue
+
+        prefix = f"{candidate_lower}:"
+        prefix_matches = [
+            model_name
+            for model_name in installed_models
+            if model_name.lower() == candidate_lower or model_name.lower().startswith(prefix)
+        ]
+        for match in prefix_matches:
+            if match not in resolved:
+                resolved.append(match)
+
+    if resolved:
+        return resolved
+
+    configured_list = ", ".join(configured)
+    installed_list = ", ".join(installed_models)
+    raise MemeMetadataError(
+        f"No configured Ollama vision model is installed. Configured: {configured_list}. Installed: {installed_list}. Run `ollama pull gemma3`."
+    )
+
+
+def _ollama_chat(model_name: str, prompt: str, image_base64_list: list[str] | None) -> str:
     message: dict[str, Any] = {
         "role": "user",
         "content": prompt,
     }
-    if image_base64:
-        message["images"] = [image_base64]
+    if image_base64_list:
+        message["images"] = image_base64_list
 
     payload = {
         "model": model_name,
@@ -345,19 +452,19 @@ def _ollama_chat(model_name: str, prompt: str, image_base64: str | None) -> str:
 
 
 def generate_ollama_meme_metadata(image_data_url: str, max_attempts: int = 2) -> dict[str, Any]:
-    _, image_bytes = _decode_data_url(image_data_url)
-    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+    mime_type, image_bytes = _decode_data_url(image_data_url)
+    _, image_base64_variants = _optimize_image_bytes(image_bytes, mime_type)
     last_error: Exception | None = None
 
-    for model_name in _ollama_model_candidates():
+    for model_name in _resolve_ollama_model_candidates():
         for attempt in range(1, max_attempts + 1):
             try:
-                analysis_text = _ollama_chat(model_name, _ANALYSIS_PROMPT, image_base64)
+                analysis_text = _ollama_chat(model_name, _ANALYSIS_PROMPT, image_base64_variants)
                 analysis = _parse_analysis_output(analysis_text)
                 metadata_prompt = _REFINEMENT_PROMPT.format(
                     analysis_json=json.dumps(analysis, ensure_ascii=True)
                 )
-                output_text = _ollama_chat(model_name, metadata_prompt, image_base64)
+                output_text = _ollama_chat(model_name, metadata_prompt, image_base64_variants)
                 return _parse_output(output_text)
             except urllib.error.HTTPError as exc:
                 try:

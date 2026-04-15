@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { deleteMemeById, getMemeById, updateMemeById } from '../data/memeApi';
+import { deleteMemeById, getMemeById, reanalyzeMemeById, updateMemeById } from '../data/memeApi';
+import { removeMemeFromUploadBatch } from '../data/uploadProgress';
 
 function MemeDetailPage() {
   const { id } = useParams();
@@ -9,6 +10,7 @@ function MemeDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
   const [editFields, setEditFields] = useState({
     title: '',
     caption: '',
@@ -93,6 +95,7 @@ function MemeDetailPage() {
 
     try {
       await deleteMemeById(memeId);
+      removeMemeFromUploadBatch(memeId);
       navigate('/');
     } catch (error) {
       alert(error.message || 'Delete failed.');
@@ -168,6 +171,20 @@ function MemeDetailPage() {
     }
   };
 
+  const handleReanalyze = async () => {
+    if (isReanalyzing || isAnalyzing) return;
+
+    setIsReanalyzing(true);
+    try {
+      const updatedMeme = await reanalyzeMemeById(memeId);
+      setMeme(updatedMeme);
+    } catch (error) {
+      alert(error.message || 'Could not restart AI analysis.');
+    } finally {
+      setIsReanalyzing(false);
+    }
+  };
+
   const caption = meme.caption || meme.title || 'No caption provided.';
   const tags = meme.keywords?.length ? meme.keywords.map((tag) => `#${tag}`) : ['#meme'];
   const isAnalyzing = meme.aiStatus === 'queued' || meme.aiStatus === 'processing';
@@ -188,7 +205,7 @@ function MemeDetailPage() {
             </button>
           </>
         ) : (
-          <button className="btn btn-circle" onClick={handleEdit} type="button">
+          <button className="btn btn-pill" onClick={handleEdit} type="button">
             Edit
           </button>
         )}
@@ -254,7 +271,14 @@ function MemeDetailPage() {
               <button className="btn btn-pill detail-action-btn" onClick={handleDownload}>
                 Download Meme
               </button>
-              <button className="btn btn-pill btn-danger-soft" onClick={handleDelete}>
+              <button
+                className="btn btn-pill detail-action-btn"
+                onClick={handleReanalyze}
+                disabled={isReanalyzing || isAnalyzing}
+              >
+                {isReanalyzing || isAnalyzing ? 'Analyzing...' : 'Re-run AI'}
+              </button>
+              <button className="btn btn-pill btn-danger-soft detail-action-btn" onClick={handleDelete}>
                 Delete
               </button>
             </div>

@@ -343,6 +343,29 @@ def get_meme(meme_id: int):
     return jsonify(row_to_meme(row))
 
 
+@app.route("/api/memes/<int:meme_id>/reanalyze", methods=["POST"])
+def reanalyze_meme(meme_id: int):
+    with get_connection() as conn:
+        row = conn.execute("SELECT id FROM memes WHERE id = ?", (meme_id,)).fetchone()
+        if row is None:
+            return jsonify({"error": "Meme not found"}), 404
+
+        conn.execute(
+            """
+            UPDATE memes
+            SET ai_status = ?,
+                ai_error = NULL
+            WHERE id = ?
+            """,
+            ("queued", meme_id),
+        )
+        updated = conn.execute("SELECT * FROM memes WHERE id = ?", (meme_id,)).fetchone()
+        conn.commit()
+
+    queue_meme_for_ai(meme_id)
+    return jsonify(row_to_meme(updated))
+
+
 @app.route("/api/memes", methods=["POST"])
 def create_memes():
     payload = request.get_json(silent=True) or {}

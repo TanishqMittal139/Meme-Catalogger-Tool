@@ -32,6 +32,19 @@ export const readUploadBatch = () => {
   return parseBatch(window.localStorage.getItem(STORAGE_KEY));
 };
 
+const writeUploadBatch = (batch) => {
+  if (!isBrowser) return;
+
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({
+      ids: batch.ids,
+      total: batch.total,
+      startedAt: batch.startedAt || Date.now()
+    })
+  );
+};
+
 const emitBatchChange = () => {
   if (!isBrowser) return;
   window.dispatchEvent(new Event(CHANGE_EVENT));
@@ -43,20 +56,39 @@ export const startUploadBatch = (ids) => {
   const cleanedIds = ids.filter((id) => Number.isFinite(id));
   if (cleanedIds.length === 0) return;
 
-  window.localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify({
-      ids: cleanedIds,
-      total: cleanedIds.length,
-      startedAt: Date.now()
-    })
-  );
+  writeUploadBatch({
+    ids: cleanedIds,
+    total: cleanedIds.length,
+    startedAt: Date.now()
+  });
   emitBatchChange();
 };
 
 export const clearUploadBatch = () => {
   if (!isBrowser) return;
   window.localStorage.removeItem(STORAGE_KEY);
+  emitBatchChange();
+};
+
+export const removeMemeFromUploadBatch = (memeId) => {
+  if (!isBrowser || !Number.isFinite(memeId)) return;
+
+  const currentBatch = readUploadBatch();
+  if (!currentBatch) return;
+
+  const remainingIds = currentBatch.ids.filter((id) => id !== memeId);
+  if (remainingIds.length === currentBatch.ids.length) return;
+
+  if (remainingIds.length === 0) {
+    clearUploadBatch();
+    return;
+  }
+
+  writeUploadBatch({
+    ...currentBatch,
+    ids: remainingIds,
+    total: remainingIds.length
+  });
   emitBatchChange();
 };
 
@@ -104,7 +136,26 @@ export function useUploadBatchProgress() {
         const memes = await getMemes();
         if (isCancelled) return;
 
-        const trackedMemes = batch.ids
+        const existingIds = batch.ids.filter((id) => memes.some((meme) => meme.id === id));
+        if (existingIds.length !== batch.ids.length) {
+          if (existingIds.length === 0) {
+            clearUploadBatch();
+            return;
+          }
+
+          const nextBatch = {
+            ...batch,
+            ids: existingIds,
+            total: existingIds.length
+          };
+
+          writeUploadBatch(nextBatch);
+          emitBatchChange();
+          setBatch(nextBatch);
+          return;
+        }
+
+        const trackedMemes = existingIds
           .map((id) => memes.find((meme) => meme.id === id))
           .filter(Boolean);
 
@@ -114,10 +165,10 @@ export function useUploadBatchProgress() {
         setProgress({
           completed,
           failed,
-          total: batch.total
+          total: existingIds.length
         });
 
-        if (completed >= batch.total) {
+        if (existingIds.length > 0 && completed >= existingIds.length) {
           completionTimer = window.setTimeout(() => {
             clearUploadBatch();
           }, COMPLETION_RESET_DELAY_MS);
