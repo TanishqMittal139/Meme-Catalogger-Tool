@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 set "FRONTEND_PORT=5173"
 set "BACKEND_PORT=5000"
-set "EXPECTED_BRANCH=ai-testing"
+set "EXPECTED_BRANCH=final"
 set "OLLAMA_EXE=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
 if "%OLLAMA_MODEL%"=="" set "OLLAMA_MODEL=gemma3,llama3.2-vision"
 for /f "tokens=1 delims=," %%M in ("%OLLAMA_MODEL%") do set "PRIMARY_OLLAMA_MODEL=%%~M"
