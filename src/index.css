@@ -234,6 +234,25 @@ a {
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.meme-copy-button.is-success {
+  background: #d8f2cc;
+  border-color: #83b36d;
+  color: #224018;
+}
+
+.meme-copy-button.is-manual {
+  background: #d8e8f7;
+  border-color: #7aa3c7;
+  color: #17344d;
+}
+
+.meme-copy-button.is-failure {
+  background: #f1d0d0;
+  border-color: #bf8d8d;
+  color: #6a1e1e;
 }
 
 .meme-card-info {
@@ -610,10 +629,43 @@ a {
   overflow-wrap: anywhere;
 }
 
+.detail-action-success {
+  background: #d8f2cc;
+  border-color: #83b36d;
+  color: #224018;
+}
+
+.detail-action-manual {
+  background: #d8e8f7;
+  border-color: #7aa3c7;
+  color: #17344d;
+}
+
+.detail-action-failure {
+  background: #f1d0d0;
+  border-color: #bf8d8d;
+  color: #6a1e1e;
+}
+
 .detail-top-row .btn {
   min-height: 52px;
   padding: 9px 24px;
   font-size: 1.05rem;
+}
+
+.detail-copy-feedback {
+  margin-top: 8px;
+  color: #d8f2cc;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.detail-copy-feedback.is-manual {
+  color: #d8e8f7;
+}
+
+.detail-copy-feedback.is-error {
+  color: #ffd5d5;
 }
 
 .visually-hidden {

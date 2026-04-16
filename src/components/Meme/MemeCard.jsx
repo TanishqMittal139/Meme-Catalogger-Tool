@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { buildMemeImageLink, copyTextToClipboard } from '../../utils/clipboard';
 
 function MemeCard({ meme }) {
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState('idle');
 
   const handleClick = () => {
     navigate(`/meme/${meme.id}`);
@@ -13,11 +14,13 @@ function MemeCard({ meme }) {
     event.stopPropagation();
 
     try {
-      await navigator.clipboard.writeText(meme.image);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1200);
+      const memeLink = buildMemeImageLink(meme.id);
+      const result = await copyTextToClipboard(memeLink);
+      setCopyState(result.manual ? 'manual' : 'copied');
+      window.setTimeout(() => setCopyState('idle'), 1400);
     } catch {
-      window.prompt('Copy meme link:', meme.image);
+      setCopyState('failed');
+      window.setTimeout(() => setCopyState('idle'), 1800);
     }
   };
 
@@ -25,8 +28,12 @@ function MemeCard({ meme }) {
     <div className="meme-card" onClick={handleClick}>
       <div className="meme-image-box">
         <img src={meme.image} alt={meme.title} />
-        <button className="meme-copy-button" onClick={handleCopy} type="button">
-          {copied ? 'Copied' : 'Copy'}
+        <button
+          className={`meme-copy-button ${copyState === 'copied' ? 'is-success' : ''} ${copyState === 'manual' ? 'is-manual' : ''} ${copyState === 'failed' ? 'is-failure' : ''}`.trim()}
+          onClick={handleCopy}
+          type="button"
+        >
+          {copyState === 'copied' ? 'Copied!' : copyState === 'manual' ? 'Link Ready' : copyState === 'failed' ? 'Failed' : 'Copy'}
         </button>
       </div>
 

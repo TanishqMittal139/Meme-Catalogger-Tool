@@ -1,11 +1,15 @@
+import base64
+import binascii
+import io
 import json
 import os
+import re
 import sqlite3
 import threading
 from queue import Empty, Queue
 from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request, send_file
 from werkzeug.exceptions import HTTPException
 
 from ai_metadata import MemeMetadataError, generate_meme_metadata
@@ -52,6 +56,25 @@ def row_to_meme(row: sqlite3.Row) -> dict[str, Any]:
         "aiStatus": row["ai_status"] or "queued",
         "aiError": row["ai_error"],
     }
+
+
+def decode_data_image(image_value: str) -> tuple[str, bytes] | None:
+    if not isinstance(image_value, str) or not image_value.startswith("data:image/"):
+        return None
+
+    match = re.match(r"^data:(image/[^;]+);base64,(.+)$", image_value, re.DOTALL)
+    if not match:
+        return None
+
+    mime_type = match.group(1)
+    encoded_data = match.group(2)
+
+    try:
+        image_bytes = base64.b64decode(encoded_data)
+    except (ValueError, binascii.Error):
+        return None
+
+    return mime_type, image_bytes
 
 
 def init_db() -> None:
@@ -341,6 +364,32 @@ def get_meme(meme_id: int):
         return jsonify({"error": "Meme not found"}), 404
 
     return jsonify(row_to_meme(row))
+
+
+@app.route("/api/memes/<int:meme_id>/image", methods=["GET"])
+def get_meme_image(meme_id: int):
+    with get_connection() as conn:
+        row = conn.execute("SELECT image FROM memes WHERE id = ?", (meme_id,)).fetchone()
+
+    if row is None:
+        return jsonify({"error": "Meme not found"}), 404
+
+    image_value = row["image"]
+
+    if isinstance(image_value, str) and image_value.startswith(("http://", "https://")):
+        return redirect(image_value, code=302)
+
+    decoded_image = decode_data_image(image_value)
+    if decoded_image is None:
+        return jsonify({"error": "Meme image is not available."}), 404
+
+    mime_type, image_bytes = decoded_image
+    return send_file(
+        io.BytesIO(image_bytes),
+        mimetype=mime_type,
+        as_attachment=False,
+        download_name=f"meme-{meme_id}",
+    )
 
 
 @app.route("/api/memes/<int:meme_id>/reanalyze", methods=["POST"])

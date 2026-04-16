@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { deleteMemeById, getMemeById, reanalyzeMemeById, updateMemeById } from '../data/memeApi';
 import { removeMemeFromUploadBatch } from '../data/uploadProgress';
+import { buildMemeImageLink, copyTextToClipboard } from '../utils/clipboard';
 
 function MemeDetailPage() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ function MemeDetailPage() {
   const [loadError, setLoadError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isReanalyzing, setIsReanalyzing] = useState(false);
+  const [copyState, setCopyState] = useState('idle');
   const [editFields, setEditFields] = useState({
     title: '',
     caption: '',
@@ -157,17 +159,13 @@ function MemeDetailPage() {
 
   const handleCopy = async () => {
     try {
-      const response = await fetch(meme.image);
-      const blob = await response.blob();
-      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-      return;
+      const memeLink = buildMemeImageLink(memeId);
+      const result = await copyTextToClipboard(memeLink);
+      setCopyState(result.manual ? 'manual' : 'copied');
+      window.setTimeout(() => setCopyState('idle'), 1600);
     } catch {
-      try {
-        await navigator.clipboard.writeText(meme.image);
-        return;
-      } catch {
-        window.prompt('Copy meme link:', meme.image);
-      }
+      setCopyState('failed');
+      window.setTimeout(() => setCopyState('idle'), 2200);
     }
   };
 
@@ -264,24 +262,44 @@ function MemeDetailPage() {
           )}
 
           {!isEditing && (
-            <div className="meme-detail-actions">
-              <button className="btn btn-pill detail-action-btn" onClick={handleCopy}>
-                Copy Meme
-              </button>
-              <button className="btn btn-pill detail-action-btn" onClick={handleDownload}>
-                Download Meme
-              </button>
-              <button
-                className="btn btn-pill detail-action-btn"
-                onClick={handleReanalyze}
-                disabled={isReanalyzing || isAnalyzing}
-              >
-                {isReanalyzing || isAnalyzing ? 'Analyzing...' : 'Re-run AI'}
-              </button>
-              <button className="btn btn-pill btn-danger-soft detail-action-btn" onClick={handleDelete}>
-                Delete
-              </button>
-            </div>
+            <>
+              <div className="meme-detail-actions">
+                <button
+                  className={`btn btn-pill detail-action-btn ${copyState === 'copied' ? 'detail-action-success' : ''} ${copyState === 'manual' ? 'detail-action-manual' : ''} ${copyState === 'failed' ? 'detail-action-failure' : ''}`.trim()}
+                  onClick={handleCopy}
+                >
+                  {copyState === 'copied'
+                    ? 'Copied!'
+                    : copyState === 'manual'
+                      ? 'Link Ready'
+                      : copyState === 'failed'
+                        ? 'Copy Failed'
+                        : 'Copy Meme'}
+                </button>
+                <button className="btn btn-pill detail-action-btn" onClick={handleDownload}>
+                  Download Meme
+                </button>
+                <button
+                  className="btn btn-pill detail-action-btn"
+                  onClick={handleReanalyze}
+                  disabled={isReanalyzing || isAnalyzing}
+                >
+                  {isReanalyzing || isAnalyzing ? 'Analyzing...' : 'Re-run AI'}
+                </button>
+                <button className="btn btn-pill btn-danger-soft detail-action-btn" onClick={handleDelete}>
+                  Delete
+                </button>
+              </div>
+              {copyState === 'copied' ? (
+                <p className="detail-copy-feedback">Meme link copied to your clipboard.</p>
+              ) : null}
+              {copyState === 'manual' ? (
+                <p className="detail-copy-feedback is-manual">A copy dialog opened with the meme link.</p>
+              ) : null}
+              {copyState === 'failed' ? (
+                <p className="detail-copy-feedback is-error">Could not prepare a meme link to copy.</p>
+              ) : null}
+            </>
           )}
         </div>
       </div>
