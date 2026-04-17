@@ -83,7 +83,7 @@ Rules:
 - If visible_text contains an important quote, let it guide the meaning of the meme.
 - Do not call it a different meme format unless the analysis is confident.
 - Title: 3 to 8 words, keep it natural and relavant and FUNNY. Reference modern internet humor and make it relatable for EVERYONE. Ensure the title fully complete and not cutoff. Make sure it connects to the caption and image. Keep it INFORMAL and use slang! Make sure it doesnt use complicated wordy language so that everyone can understand.Do NOT use any cuss words or innapropriate language!
-- Caption: 1 sentence, 12 to 28 words, describing the actual joke. The caption shoud be funny, specific, and relatable for EVERYONE through modern internet humor, gen z humor). Avoid boring/generic phrases and try to focus on a relatable/ recognizable situation by using a funny/humorous wordplay and tone. Do NOT use any cuss words or innapropriate language!
+- Caption: 1 sentence, 12 to 28 words, describing the actual joke. The caption shoud be funny, specific, and relatable for EVERYONE through modern internet humor, gen z humor). Avoid boring/generic phrases and try to focus on a relatable situation. Use funny/humorous wordplay and tone. Do NOT use any cuss words or innapropriate language.
 - Keywords: 6 to 10 short search tags make sure they are relevant to the image, and use modern internet humor as well..
 - Avoid generic filler like "funny meme", "friday meme", "humor", or "image", or "tiktok".
 """
