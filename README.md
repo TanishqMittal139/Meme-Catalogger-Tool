@@ -1,16 +1,5 @@
-# React + Vite
+The Meme Catalogger is a project for the CIT Projects. It was designed to bring a glimpse of humor into someone's day, through its local AI generated tags and captions. The search engine uses these captions and tags to make it easy for the user to organize their memes, and retrieve at  the right situation. This application is optimized for both mac and windows. However, we reccomend the user to use a mac due to the fact that processing times are much faster.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+To use set up this application on mac, setup the application by following this tutorial: https://docs.google.com/document/d/1XdMzVltv_eKiXDhHLiVxyjBtZjiNqD99SFMy1QeO9Yo/edit?usp=sharing
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+To use set up this application on windows, setup the application by following this tutorial: https://docs.google.com/document/d/1L5zV6qqhYDnx7oGxVIWqBypCvTSOuJkoOEo_GqWn76g/edit?usp=sharing
