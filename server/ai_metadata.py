@@ -61,7 +61,7 @@ Rules:
 - Read and transcribe visible meme text as accurately as possible.
 - Prefer exact OCR-style transcription over paraphrasing.
 - If there is little or no readable text, return an empty array for visible_text.
-- Describe the joke or situation in plain language.
+- Describe the meme in the context of a joke or situation in playful/ humorous language.
 - Use meme_format only if you are reasonably confident, otherwise return "unknown".
 - confidence must be one of: high, medium, low.
 """
@@ -82,10 +82,11 @@ Rules:
 - Base the metadata on the actual joke and visible text, not generic image description.
 - If visible_text contains an important quote, let it guide the meaning of the meme.
 - Do not call it a different meme format unless the analysis is confident.
-- Title: 3 to 8 words, natural and specific.
-- Caption: 1 sentence, 12 to 28 words, describing the actual joke or situation.
-- Keywords: 6 to 10 short search tags.
-- Avoid generic filler like "funny meme", "friday meme", "humor", or "image".
+- Title: 3 to 8 words, natural and specific. Reference modern internet humor and make it relatable. Ensure the title is not cut off, and that it is 
+- Caption: 1 sentence, 12 to 28 words, describing the actual joke. 
+- For the caption, use a meme caption that uses modern internet humor or wordplay or irony. Use Gen Z humor, and make sure it is relatable and funny SUBLTY include the situation. Avoid boring captions that just dexcribe the image wihtout any joke. 
+- Keywords: 6 to 10 short search tags make sure they are relevant to the image, and use modern internet humor as well..
+- Avoid generic filler like "funny meme", "friday meme", "humor", or "image", or "tiktok".
 """
 
 
