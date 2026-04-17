@@ -36,6 +36,7 @@ Instructions:
 - If the image is a classic meme format, name the format only if you are confident.
 - Do not invent people, brands, events, or context not visible in the image.
 - Do not mention file names, uploads, or that this is an AI analysis.
+- The captions, tags, and titles should be funny, specific, and relatable. Use  modern internet humor, gen z humor, funny/humorous wordplay and tone.  Avoid boring/generic phrases and try to focus on a relatable funny situation. Do NOT use any cuss words or innapropriate language.
 
 Output rules:
 - Title: 3 to 8 words, specific, natural, and search-friendly.
@@ -44,6 +45,7 @@ Output rules:
 - Include tags for subject, emotion/tone, meme format if visible, and joke theme.
 - Keep title and caption meaningfully different from each other.
 - Avoid vague filler like "funny meme", "humor", or "image".
+- The captions, titles and tags MUST be funny, specific, and relatable. Use  modern internet humor, gen z humor, funny/humorous wordplay and tone.  Avoid boring/generic phrases and try to focus on a relatable funny situation. Do NOT use any cuss words or innapropriate language.
 """
 
 _ANALYSIS_PROMPT = """Analyze this meme carefully before generating metadata.
@@ -64,6 +66,7 @@ Rules:
 - Describe the meme in the context of a joke or situation in playful/ humorous language.
 - Use meme_format only if you are reasonably confident, otherwise return "unknown".
 - confidence must be one of: high, medium, low.
+- The captions, titles and tags MUST be funny, specific, and relatable. Use  modern internet humor, gen z humor, funny/humorous wordplay and tone.  Avoid boring/generic phrases and try to focus on a relatable funny situation. Do NOT use any cuss words or innapropriate language.
 """
 
 _REFINEMENT_PROMPT = """You are generating metadata for a meme using an image plus a prior analysis.
@@ -82,8 +85,8 @@ Rules:
 - Base the metadata on the actual joke and visible text, not generic image description.
 - If visible_text contains an important quote, let it guide the meaning of the meme.
 - Do not call it a different meme format unless the analysis is confident.
-- Title: 3 to 8 words, keep it natural and relavant and FUNNY. Reference modern internet humor and make it relatable for EVERYONE. Ensure the title is not cutoff and makes sense. Make sure it connects to the caption and image. Keep it INFORMAL and use slang! Do NOT use any cuss words or innapropriate language! Only use "you" when necessary.
-- Caption: 1 sentence, 12 to 28 words, describing the actual joke. The caption shoud be funny, specific, and relatable. Use through modern internet humor, gen z humor, funny/humorous wordplay(slang) and tone.  Avoid boring/generic phrases and try to focus on a relatable funny situation. Do NOT use any cuss words or innapropriate language.
+- Title: 3 to 8 words, keep it relatable and relavant and make sure it makes sense. Reference modern internet humor and make it relatable for EVERYONE. Ensure the title is not cutoff and makes sense. Make sure it connects to the caption and image. Keep it INFORMAL annd funny! Do NOT use any cuss words or innapropriate language! Do not use "you" in the title, but use it in the caption.
+- Caption: 1 sentence, 12 to 28 words; it should describe the actual joke. The caption shoud be funny, specific, and relatable. Use through modern internet humor, gen z humor, funny/humorous wordplay and tone.  Avoid boring/generic phrases and try to reference a relatable funny situation. Do NOT use any cuss words or innapropriate language.
 - Keywords: 6 to 10 short search tags make sure they are relevant to the image, and use modern internet humor as well..
 - Avoid generic filler like "funny meme", "friday meme", "humor", or "image", or "tiktok".
 """
